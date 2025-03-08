@@ -15,6 +15,8 @@ const Todos = () => {
     );
   });
 
+  const [editTodoId, setEditTodoId] = useState(null);
+
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
@@ -24,11 +26,28 @@ const Todos = () => {
       id: nanoid(),
       text: inputValue,
     };
-    setTodos(prevTodos => [...prevTodos, newTodo]); // Use functional update
+    setTodos(prevTodos => [...prevTodos, newTodo]);
+  };
+
+  const startEditing = id => {
+    setEditTodoId(id);
+  };
+
+  const updateTodo = (id, newText) => {
+    setTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo.id === id ? { ...todo, text: newText } : todo
+      )
+    );
+    setEditTodoId(null);
+  };
+
+  const cancelUpdate = () => {
+    setEditTodoId(null);
   };
 
   const deleteTodo = id => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id)); // Use functional update
+    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
   };
 
   return (
@@ -37,7 +56,14 @@ const Todos = () => {
       {todos.length === 0 ? (
         <Text textAlign="center">There are no todos ...</Text>
       ) : (
-        <TodoList todos={todos} onDelete={deleteTodo} />
+        <TodoList
+          todos={todos}
+          onDelete={deleteTodo}
+          onEdit={startEditing}
+          editTodoId={editTodoId}
+          updateTodo={updateTodo}
+          cancelUpdate={cancelUpdate}
+        />
       )}
     </>
   );
